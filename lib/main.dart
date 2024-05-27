@@ -1,3 +1,4 @@
+import 'package:chatapp/page/home.dart';
 import 'package:chatapp/page/signin.dart';
 import 'package:chatapp/page/signup.dart';
 import 'package:flutter/material.dart';
@@ -19,7 +20,7 @@ class MyApp extends StatelessWidget {
         colorScheme: ColorScheme.fromSeed(seedColor: Colors.deepPurple),
         useMaterial3: true,
       ),
-      home: const SignUp(),
+      home: const HomePage(),
     );
   }
 }
