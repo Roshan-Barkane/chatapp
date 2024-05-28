@@ -1,3 +1,6 @@
+import 'package:chatapp/page/home.dart';
+import 'package:chatapp/service/database.dart';
+import 'package:chatapp/service/shared_prefirences.data.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:random_string/random_string.dart';
@@ -34,15 +37,30 @@ class _SignUpState extends State<SignUp> {
           "Photo":
               "https://imgs.search.brave.com/sVrOyB2bbfZktZ-nfQyPdZicJWrYFjKAkaE13WwD_Ec/rs:fit:500:0:0/g:ce/aHR0cHM6Ly90aHVt/YnMuZHJlYW1zdGlt/ZS5jb20vYi9oYXBw/eS1wZXJzb24tbGF1/Z2hpbmctc2VsZWN0/aXZlLWZvY3VzLXNl/bGN0aXZlLWNyb3Bl/ZC1pbWFnZS0xMTEx/ODgyNTguanBn",
           "Id": Id,
-          "Password": passwordController.text,
-          "ConfirmPassword": confirmPasswordController.text,
+          //  "Password": passwordController.text,
+          // "ConfirmPassword": confirmPasswordController.text,
         };
+        // call the DataBaseMethod which create new collaction in firebase firestore
+        await DataBaseMethod().addUserDetails(userInfoMap, Id);
+        // call all the function to save data localy
+        await SharedPreferenceHelper().saveUserId(Id);
+        await SharedPreferenceHelper().saveUserDispaly(nameController.text);
+        await SharedPreferenceHelper().saveUserEmail(mailController.text);
+        await SharedPreferenceHelper().saveUserPic(
+            "https://imgs.search.brave.com/sVrOyB2bbfZktZ-nfQyPdZicJWrYFjKAkaE13WwD_Ec/rs:fit:500:0:0/g:ce/aHR0cHM6Ly90aHVt/YnMuZHJlYW1zdGlt/ZS5jb20vYi9oYXBw/eS1wZXJzb24tbGF1/Z2hpbmctc2VsZWN0/aXZlLWZvY3VzLXNl/bGN0aXZlLWNyb3Bl/ZC1pbWFnZS0xMTEx/ODgyNTguanBn");
+        await SharedPreferenceHelper()
+            .saveUserName(mailController.text.replaceAll("@gmail.com", ""));
 
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(
           "Registered Successfully",
           style: TextStyle(fontSize: 20.0),
         )));
+        Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(
+              builder: (context) => HomePage(),
+            ));
       } on FirebaseAuthException catch (e) {
         if (e.code == 'weak-password') {
           ScaffoldMessenger.of(context).showSnackBar(
