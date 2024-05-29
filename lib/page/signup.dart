@@ -39,8 +39,8 @@ class _SignUpState extends State<SignUp> {
         Map<String, dynamic> userInfoMap = {
           "Name": nameController.text,
           "E-mail": mailController.text,
-          "username": updateUserName,
-          "searchKey": firstlatter,
+          "Username": updateUserName.toUpperCase(),
+          "SearchKey": firstlatter,
           "Photo":
               "https://imgs.search.brave.com/sVrOyB2bbfZktZ-nfQyPdZicJWrYFjKAkaE13WwD_Ec/rs:fit:500:0:0/g:ce/aHR0cHM6Ly90aHVt/YnMuZHJlYW1zdGlt/ZS5jb20vYi9oYXBw/eS1wZXJzb24tbGF1/Z2hpbmctc2VsZWN0/aXZlLWZvY3VzLXNl/bGN0aXZlLWNyb3Bl/ZC1pbWFnZS0xMTEx/ODgyNTguanBn",
           "Id": Id,
