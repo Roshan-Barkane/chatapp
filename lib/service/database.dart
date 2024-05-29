@@ -9,9 +9,18 @@ class DataBaseMethod {
         .set(userInfoMap);
   }
 
+// this function we used to get data help to email
   Future<QuerySnapshot> getUserbyemail(String email) async =>
       await FirebaseFirestore.instance
           .collection('users')
           .where('E-mail', isEqualTo: email)
           .get();
+
+// This function we used to search user just like amazon
+  Future<QuerySnapshot> Search(String username) async {
+    return await FirebaseFirestore.instance
+        .collection('users')
+        .where('SearchKey', isEqualTo: username.substring(0, 1).toUpperCase())
+        .get();
+  }
 }

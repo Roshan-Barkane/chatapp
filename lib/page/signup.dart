@@ -30,11 +30,17 @@ class _SignUpState extends State<SignUp> {
             .createUserWithEmailAndPassword(email: email, password: password);
         // generate random id using random_string package
         String Id = randomAlphaNumeric(10);
+        String user = mailController.text.replaceAll("@gmail.com", "");
+        String updateUserName =
+            user.replaceFirst(user[0], user[0].toUpperCase());
+        String firstlatter = user.substring(0, 1).toUpperCase();
+
         // upload data in firebase
         Map<String, dynamic> userInfoMap = {
           "Name": nameController.text,
           "E-mail": mailController.text,
-          "username": mailController.text.replaceAll("@gmail.com", ""),
+          "username": updateUserName,
+          "searchKey": firstlatter,
           "Photo":
               "https://imgs.search.brave.com/sVrOyB2bbfZktZ-nfQyPdZicJWrYFjKAkaE13WwD_Ec/rs:fit:500:0:0/g:ce/aHR0cHM6Ly90aHVt/YnMuZHJlYW1zdGlt/ZS5jb20vYi9oYXBw/eS1wZXJzb24tbGF1/Z2hpbmctc2VsZWN0/aXZlLWZvY3VzLXNl/bGN0aXZlLWNyb3Bl/ZC1pbWFnZS0xMTEx/ODgyNTguanBn",
           "Id": Id,

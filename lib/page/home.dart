@@ -8,6 +8,22 @@ class HomePage extends StatefulWidget {
 }
 
 class _HomePageState extends State<HomePage> {
+  bool search = false;
+  var queryResultSet = [];
+  var tempSearchStore = [];
+
+  initiateState(value) {
+    if (value.toString().length == 0) {
+      setState(() {
+        queryResultSet = [];
+        tempSearchStore = [];
+      });
+    }
+    setState(() {
+      search = true;
+    });
+  }
+
   @override
   Widget build(BuildContext context) {
     return Scaffold(
@@ -22,23 +38,47 @@ class _HomePageState extends State<HomePage> {
               child: Row(
                 mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
-                  Text(
-                    "ChatUp",
-                    style: TextStyle(
-                        color: Color(0xFFc199cd),
-                        fontSize: 25.0,
-                        fontWeight: FontWeight.bold),
-                  ),
-                  Container(
-                    padding: EdgeInsets.all(8),
-                    height: 40,
-                    decoration: BoxDecoration(
-                        color: Color.fromARGB(255, 35, 26, 41),
-                        borderRadius: BorderRadius.circular(50)),
-                    child: Center(
-                      child: Icon(
-                        Icons.search,
-                        color: Color(0xFFc199cd),
+                  search
+                      ? Expanded(
+                          child: TextField(
+                            decoration: InputDecoration(
+                              border: InputBorder.none,
+                              hintText: "Search User",
+                              hintStyle: TextStyle(
+                                  color: Colors.black,
+                                  fontSize: 20.0,
+                                  fontWeight: FontWeight.w500),
+                            ),
+                            style: TextStyle(
+                              color: Colors.black,
+                              fontSize: 18.0,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        )
+                      : Text(
+                          "ChatUp",
+                          style: TextStyle(
+                              color: Color(0xFFc199cd),
+                              fontSize: 25.0,
+                              fontWeight: FontWeight.bold),
+                        ),
+                  GestureDetector(
+                    onTap: () {
+                      search = true;
+                      setState(() {});
+                    },
+                    child: Container(
+                      padding: EdgeInsets.all(8),
+                      height: 40,
+                      decoration: BoxDecoration(
+                          color: Color.fromARGB(255, 35, 26, 41),
+                          borderRadius: BorderRadius.circular(50)),
+                      child: Center(
+                        child: Icon(
+                          Icons.search,
+                          color: Color(0xFFc199cd),
+                        ),
                       ),
                     ),
                   ),
@@ -47,7 +87,9 @@ class _HomePageState extends State<HomePage> {
             ),
             Container(
               padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-              height: MediaQuery.of(context).size.height / 1.15,
+              height: search
+                  ? MediaQuery.of(context).size.height / 1.19
+                  : MediaQuery.of(context).size.height / 1.15,
               width: MediaQuery.of(context).size.width,
               decoration: BoxDecoration(
                 color: Colors.white,
