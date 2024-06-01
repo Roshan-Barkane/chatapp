@@ -1,3 +1,4 @@
+import 'package:chatapp/service/shared_prefirences.data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 
 class DataBaseMethod {
@@ -39,5 +40,51 @@ class DataBaseMethod {
           .doc(chatRoomId)
           .set(chatRoomInfoMap);
     }
+  }
+
+  Future addMassage(String chatRoomId, String massageId,
+      Map<String, dynamic> massageInfoMap) async {
+    await FirebaseFirestore.instance
+        .collection("chatrooms")
+        .doc(chatRoomId)
+        .collection("chats")
+        .doc(massageId)
+        .set(massageInfoMap);
+  }
+
+  updataLastMessageSend(
+      String chatRoomId, Map<String, dynamic> lastMessageInfoMap) {
+    return FirebaseFirestore.instance
+        .collection("chatrooms")
+        .doc(chatRoomId)
+        .update(lastMessageInfoMap);
+  }
+
+  Future<Stream<QuerySnapshot>> getChatRoomMassages(chatRoomId) async {
+    return FirebaseFirestore.instance
+        .collection("chatrooms")
+        .doc(chatRoomId)
+        .collection("chats")
+        .orderBy("time", descending: true)
+        .snapshots();
+  }
+
+  Future<QuerySnapshot> getUserInfo(String username) async {
+    return await FirebaseFirestore.instance
+        .collection("users")
+        .where("Username", isEqualTo: username)
+        .get();
+  }
+
+  Future<Stream<QuerySnapshot>> getChatRoom() async {
+    String? myUsername = await SharedPreferenceHelper().getUserNeme();
+    return FirebaseFirestore.instance
+        .collection("chatrooms")
+        .orderBy("time", descending: true)
+        .where(
+          "users",
+          arrayContains: myUsername!.toUpperCase(),
+        )
+        .snapshots();
   }
 }

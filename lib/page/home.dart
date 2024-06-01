@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:chatapp/page/chatpage.dart';
 import 'package:chatapp/service/database.dart';
 import 'package:chatapp/service/shared_prefirences.data.dart';
@@ -14,6 +16,8 @@ class HomePage extends StatefulWidget {
 class _HomePageState extends State<HomePage> {
   bool search = false;
   String? myName, myProfilePic, myUserName, myEmail;
+  Stream? chatRoomStream;
+
   //  take the data on sharedPrefremce
   getthesharedpre() async {
     myName = await SharedPreferenceHelper().getUserDisplay();
@@ -26,7 +30,35 @@ class _HomePageState extends State<HomePage> {
   // this function is call the getthe sharedpre method
   ontheload() async {
     await getthesharedpre();
+    chatRoomStream = await DataBaseMethod().getChatRoom();
+
     setState(() {});
+  }
+
+  Widget chatRoomLile() {
+    return StreamBuilder(
+      stream: chatRoomStream,
+      builder: (context, AsyncSnapshot snapshot) {
+        return snapshot.hasData
+            ? ListView.builder(
+                padding: EdgeInsets.zero,
+                itemCount: snapshot.data.docs.length,
+                shrinkWrap: true,
+                itemBuilder: (context, index) {
+                  DocumentSnapshot ds = snapshot.data.docs[index];
+                  return chatRoomListTile(
+                    lastMessage: ds["lastMessage"],
+                    chatRoomId: ds.id,
+                    myuserName: myUserName.toString(),
+                    time: ds["lastMessageSendTs"],
+                  );
+                },
+              )
+            : Center(
+                child: CircularProgressIndicator(),
+              );
+      },
+    );
   }
 
   @override
@@ -88,217 +120,107 @@ class _HomePageState extends State<HomePage> {
       body: SingleChildScrollView(
         child: Container(
           // margin: EdgeInsets.symmetric(vertical: 50.0, horizontal: 20.0),
-          child: Column(children: [
-            Padding(
-              padding: const EdgeInsets.only(
-                  left: 20.0, right: 20.0, top: 50, bottom: 20),
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                children: [
-                  search
-                      ? Expanded(
-                          child: TextField(
-                            onChanged: (value) {
-                              initiateSearch(value.toUpperCase());
-                            },
-                            decoration: InputDecoration(
-                              border: InputBorder.none,
-                              hintText: "Search User",
-                              hintStyle: TextStyle(
-                                  color: Colors.white,
-                                  fontSize: 20.0,
-                                  fontWeight: FontWeight.w500),
+          child: Column(
+            children: [
+              Padding(
+                padding: const EdgeInsets.only(
+                    left: 20.0, right: 20.0, top: 50, bottom: 20),
+                child: Row(
+                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
+                  children: [
+                    search
+                        ? Expanded(
+                            child: TextField(
+                              onChanged: (value) {
+                                initiateSearch(value.toUpperCase());
+                              },
+                              decoration: InputDecoration(
+                                border: InputBorder.none,
+                                hintText: "Search User",
+                                hintStyle: TextStyle(
+                                    color: Colors.white,
+                                    fontSize: 20.0,
+                                    fontWeight: FontWeight.w500),
+                              ),
+                              style: TextStyle(
+                                color: Colors.white,
+                                fontSize: 18.0,
+                                fontWeight: FontWeight.w500,
+                              ),
                             ),
+                          )
+                        : Text(
+                            "ChatUp",
                             style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 18.0,
-                              fontWeight: FontWeight.w500,
-                            ),
+                                color: Color(0xFFc199cd),
+                                fontSize: 25.0,
+                                fontWeight: FontWeight.bold),
                           ),
-                        )
-                      : Text(
-                          "ChatUp",
-                          style: TextStyle(
-                              color: Color(0xFFc199cd),
-                              fontSize: 25.0,
-                              fontWeight: FontWeight.bold),
-                        ),
-                  GestureDetector(
-                    onTap: () {
-                      search = true;
-                      setState(() {});
-                    },
-                    child: Container(
-                      padding: EdgeInsets.all(8),
-                      height: 40,
-                      decoration: BoxDecoration(
-                          color: Color.fromARGB(255, 35, 26, 41),
-                          borderRadius: BorderRadius.circular(50)),
-                      child: Center(
-                        child: search
-                            ? GestureDetector(
-                                onTap: () {
-                                  search = false;
-                                  setState(() {});
-                                },
-                                child: Icon(
-                                  Icons.close,
+                    GestureDetector(
+                      onTap: () {
+                        search = true;
+                        setState(() {});
+                      },
+                      child: Container(
+                        padding: EdgeInsets.all(8),
+                        height: 40,
+                        decoration: BoxDecoration(
+                            color: Color.fromARGB(255, 35, 26, 41),
+                            borderRadius: BorderRadius.circular(50)),
+                        child: Center(
+                          child: search
+                              ? GestureDetector(
+                                  onTap: () {
+                                    search = false;
+                                    setState(() {});
+                                  },
+                                  child: Icon(
+                                    Icons.close,
+                                    color: Color(0xFFc199cd),
+                                  ),
+                                )
+                              : Icon(
+                                  Icons.search,
                                   color: Color(0xFFc199cd),
                                 ),
-                              )
-                            : Icon(
-                                Icons.search,
-                                color: Color(0xFFc199cd),
-                              ),
+                        ),
                       ),
                     ),
-                  ),
-                ],
-              ),
-            ),
-            Container(
-              padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
-              height: search
-                  ? MediaQuery.of(context).size.height / 1.19
-                  : MediaQuery.of(context).size.height / 1.15,
-              width: MediaQuery.of(context).size.width,
-              decoration: BoxDecoration(
-                color: Colors.white,
-                borderRadius: BorderRadius.only(
-                  topLeft: Radius.circular(20.0),
-                  topRight: Radius.circular(20.0),
+                  ],
                 ),
               ),
-              child: Column(
-                children: [
-                  search
-                      ? ListView(
-                          padding: EdgeInsets.only(left: 10.0, right: 10.0),
-                          primary: true,
-                          shrinkWrap: true,
-                          children: tempSearchStore.map((element) {
-                            return buildResultCard(element);
-                          }).toList())
-                      : Column(
-                          children: [
-                            GestureDetector(
-                              onTap: () {
-                                Navigator.push(
-                                  context,
-                                  MaterialPageRoute(
-                                    builder: (context) => ChatsPage(),
-                                  ),
-                                );
+              Container(
+                padding: EdgeInsets.symmetric(vertical: 20.0, horizontal: 20.0),
+                height: search
+                    ? MediaQuery.of(context).size.height / 1.19
+                    : MediaQuery.of(context).size.height / 1.15,
+                width: MediaQuery.of(context).size.width,
+                decoration: BoxDecoration(
+                  color: Colors.white,
+                  borderRadius: BorderRadius.only(
+                    topLeft: Radius.circular(20.0),
+                    topRight: Radius.circular(20.0),
+                  ),
+                ),
+                child: Column(
+                  children: [
+                    search
+                        ? ListView(
+                            padding: EdgeInsets.only(left: 10.0, right: 10.0),
+                            primary: true,
+                            shrinkWrap: true,
+                            children: tempSearchStore.map(
+                              (element) {
+                                return buildResultCard(element);
                               },
-                              child: Row(
-                                crossAxisAlignment: CrossAxisAlignment.start,
-                                children: [
-                                  ClipRRect(
-                                    borderRadius: BorderRadius.circular(50),
-                                    child: Image.asset(
-                                      "assets/images/man1.jpg",
-                                      height: 70,
-                                      width: 70,
-                                      fit: BoxFit.cover,
-                                    ),
-                                  ),
-                                  SizedBox(
-                                    width: 20,
-                                  ),
-                                  Column(
-                                    crossAxisAlignment:
-                                        CrossAxisAlignment.start,
-                                    children: [
-                                      SizedBox(
-                                        height: 15,
-                                      ),
-                                      Text(
-                                        "Roshan Barkane",
-                                        style: TextStyle(
-                                          fontSize: 17.0,
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                      Text(
-                                        " Hello,What are you doing? ",
-                                        style: TextStyle(
-                                          fontSize: 16.0,
-                                          color: Colors.black45,
-                                          fontWeight: FontWeight.w500,
-                                        ),
-                                      ),
-                                    ],
-                                  ),
-                                  Spacer(),
-                                  Text(
-                                    "04:50 PM",
-                                    style: TextStyle(
-                                        fontSize: 14.0,
-                                        color: Colors.black45,
-                                        fontWeight: FontWeight.w500),
-                                  )
-                                ],
-                              ),
-                            ),
-                            SizedBox(
-                              height: 20,
-                            ),
-                            Row(
-                              crossAxisAlignment: CrossAxisAlignment.start,
-                              children: [
-                                ClipRRect(
-                                  borderRadius: BorderRadius.circular(50),
-                                  child: Image.asset(
-                                    "assets/images/human.jpg",
-                                    height: 70,
-                                    width: 70,
-                                    fit: BoxFit.cover,
-                                  ),
-                                ),
-                                SizedBox(
-                                  width: 20,
-                                ),
-                                Column(
-                                  crossAxisAlignment: CrossAxisAlignment.start,
-                                  children: [
-                                    SizedBox(
-                                      height: 15,
-                                    ),
-                                    Text(
-                                      "Khushi Patil",
-                                      style: TextStyle(
-                                        fontSize: 17.0,
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                    Text(
-                                      " Hey, Are you taking party? ",
-                                      style: TextStyle(
-                                        fontSize: 16.0,
-                                        color: Colors.black45,
-                                        fontWeight: FontWeight.w500,
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                                Spacer(),
-                                Text(
-                                  "04:50 PM",
-                                  style: TextStyle(
-                                      fontSize: 14.0,
-                                      color: Colors.black45,
-                                      fontWeight: FontWeight.w500),
-                                )
-                              ],
-                            ),
-                          ],
-                        ),
-                ],
+                            ).toList(),
+                          )
+                        : chatRoomLile(),
+                  ],
+                ),
               ),
-            ),
-          ]),
+            ],
+          ),
         ),
       ),
     );
@@ -316,6 +238,16 @@ class _HomePageState extends State<HomePage> {
         };
 
         await DataBaseMethod().createChatRoom(chatRoomId, chatRoomInfoMap);
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (context) => ChatsPage(
+              name: data['Name'],
+              profileur: data['Photo'],
+              username: data['Username'],
+            ),
+          ),
+        );
       },
       child: Container(
         margin: EdgeInsets.symmetric(vertical: 8),
@@ -368,6 +300,111 @@ class _HomePageState extends State<HomePage> {
               ],
             ),
           ),
+        ),
+      ),
+    );
+  }
+}
+
+class chatRoomListTile extends StatefulWidget {
+  final String lastMessage, chatRoomId, myuserName, time;
+  chatRoomListTile(
+      {required this.lastMessage,
+      required this.chatRoomId,
+      required this.myuserName,
+      required this.time});
+
+  @override
+  State<chatRoomListTile> createState() => _chatRoomListTileState();
+}
+
+class _chatRoomListTileState extends State<chatRoomListTile> {
+  String profirePicUrl = "", name = "", userName = "", id = "";
+
+  gethisUserInfo() async {
+    userName = widget.chatRoomId
+        .replaceAll("-", "")
+        .replaceAll(widget.myuserName, " ");
+    QuerySnapshot querySnapshot = await DataBaseMethod().getUserInfo(userName);
+    name = "${querySnapshot.docs[0]["Name"]}";
+    userName = "${querySnapshot.docs[0]["Username"]}";
+    profirePicUrl = "${querySnapshot.docs[0]["Photo"]}";
+    id = "${querySnapshot.docs[0]["Id"]}";
+    setState(() {});
+  }
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    gethisUserInfo();
+    super.initState();
+  }
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(
+      margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
+      child: GestureDetector(
+        onTap: () {},
+        child: Row(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            profirePicUrl == ""
+                ? CircleAvatar(
+                    radius: 30,
+                  )
+                : ClipRRect(
+                    borderRadius: BorderRadius.circular(50),
+                    child: Image.network(
+                      profirePicUrl,
+                      height: 70,
+                      width: 70,
+                      fit: BoxFit.cover,
+                    ),
+                  ),
+            SizedBox(
+              width: 20,
+            ),
+            Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(
+                  height: 15,
+                ),
+                Text(
+                  userName,
+                  style: TextStyle(
+                    fontSize: 17.0,
+                    color: Colors.black,
+                    fontWeight: FontWeight.w500,
+                  ),
+                ),
+                SizedBox(
+                  height: 10,
+                ),
+                Container(
+                  width: MediaQuery.of(context).size.width / 3,
+                  child: Text(
+                    widget.lastMessage,
+                    style: TextStyle(
+                      overflow: TextOverflow.ellipsis,
+                      fontSize: 16.0,
+                      color: Colors.black45,
+                      fontWeight: FontWeight.w500,
+                    ),
+                  ),
+                ),
+              ],
+            ),
+            Spacer(),
+            Text(
+              widget.time,
+              style: TextStyle(
+                  fontSize: 14.0,
+                  color: Colors.black45,
+                  fontWeight: FontWeight.w500),
+            )
+          ],
         ),
       ),
     );
