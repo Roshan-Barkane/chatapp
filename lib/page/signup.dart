@@ -1,4 +1,5 @@
 import 'package:chatapp/page/home.dart';
+import 'package:chatapp/page/signin.dart';
 import 'package:chatapp/service/database.dart';
 import 'package:chatapp/service/shared_prefirences.data.dart';
 import 'package:firebase_auth/firebase_auth.dart';
@@ -29,11 +30,17 @@ class _SignUpState extends State<SignUp> {
             .createUserWithEmailAndPassword(email: email, password: password);
         // generate random id using random_string package
         String Id = randomAlphaNumeric(10);
+        String user = mailController.text.replaceAll("@gmail.com", "");
+        String updateUserName =
+            user.replaceFirst(user[0], user[0].toUpperCase());
+        String firstlatter = user.substring(0, 1).toUpperCase();
+
         // upload data in firebase
         Map<String, dynamic> userInfoMap = {
           "Name": nameController.text,
           "E-mail": mailController.text,
-          "username": mailController.text.replaceAll("@gmail.com", ""),
+          "Username": updateUserName.toUpperCase(),
+          "SearchKey": firstlatter,
           "Photo":
               "https://imgs.search.brave.com/sVrOyB2bbfZktZ-nfQyPdZicJWrYFjKAkaE13WwD_Ec/rs:fit:500:0:0/g:ce/aHR0cHM6Ly90aHVt/YnMuZHJlYW1zdGlt/ZS5jb20vYi9oYXBw/eS1wZXJzb24tbGF1/Z2hpbmctc2VsZWN0/aXZlLWZvY3VzLXNl/bGN0aXZlLWNyb3Bl/ZC1pbWFnZS0xMTEx/ODgyNTguanBn",
           "Id": Id,
@@ -48,8 +55,9 @@ class _SignUpState extends State<SignUp> {
         await SharedPreferenceHelper().saveUserEmail(mailController.text);
         await SharedPreferenceHelper().saveUserPic(
             "https://imgs.search.brave.com/sVrOyB2bbfZktZ-nfQyPdZicJWrYFjKAkaE13WwD_Ec/rs:fit:500:0:0/g:ce/aHR0cHM6Ly90aHVt/YnMuZHJlYW1zdGlt/ZS5jb20vYi9oYXBw/eS1wZXJzb24tbGF1/Z2hpbmctc2VsZWN0/aXZlLWZvY3VzLXNl/bGN0aXZlLWNyb3Bl/ZC1pbWFnZS0xMTEx/ODgyNTguanBn");
-        await SharedPreferenceHelper()
-            .saveUserName(mailController.text.replaceAll("@gmail.com", ""));
+        await SharedPreferenceHelper().saveUserName(
+          mailController.text.replaceAll("@gmail.com", "").toUpperCase(),
+        );
 
         ScaffoldMessenger.of(context).showSnackBar(SnackBar(
             content: Text(
@@ -315,12 +323,22 @@ class _SignUpState extends State<SignUp> {
                                     style: TextStyle(
                                         color: Colors.black, fontSize: 16.0),
                                   ),
-                                  Text(
-                                    " Sign In Now!",
-                                    style: TextStyle(
-                                      color: Color(0xFF7f30fe),
-                                      fontSize: 16.0,
-                                      fontWeight: FontWeight.w500,
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) => SignIn(),
+                                        ),
+                                      );
+                                    },
+                                    child: Text(
+                                      " Sign In Now!",
+                                      style: TextStyle(
+                                        color: Color(0xFF7f30fe),
+                                        fontSize: 16.0,
+                                        fontWeight: FontWeight.w500,
+                                      ),
                                     ),
                                   ),
                                 ],

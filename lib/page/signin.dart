@@ -1,4 +1,6 @@
+import 'package:chatapp/page/forget_password.dart';
 import 'package:chatapp/page/home.dart';
+import 'package:chatapp/page/signup.dart';
 import 'package:chatapp/service/database.dart';
 import 'package:chatapp/service/shared_prefirences.data.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -217,14 +219,25 @@ class _SignInState extends State<SignIn> {
                                   SizedBox(
                                     height: 10,
                                   ),
-                                  Container(
-                                    alignment: Alignment.centerRight,
-                                    child: Text(
-                                      "Forget Possword ?",
-                                      style: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 18.0,
-                                        fontWeight: FontWeight.w500,
+                                  GestureDetector(
+                                    onTap: () {
+                                      Navigator.push(
+                                        context,
+                                        MaterialPageRoute(
+                                          builder: (context) =>
+                                              ForgetPassword(),
+                                        ),
+                                      );
+                                    },
+                                    child: Container(
+                                      alignment: Alignment.centerRight,
+                                      child: Text(
+                                        "Forget Possword ?",
+                                        style: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 18.0,
+                                          fontWeight: FontWeight.w500,
+                                        ),
                                       ),
                                     ),
                                   ),
@@ -276,12 +289,22 @@ class _SignInState extends State<SignIn> {
                         "Don't have an account?",
                         style: TextStyle(color: Colors.black, fontSize: 16.0),
                       ),
-                      Text(
-                        " Sign Up Now!",
-                        style: TextStyle(
-                          color: Color(0xFF7f30fe),
-                          fontSize: 16.0,
-                          fontWeight: FontWeight.w500,
+                      GestureDetector(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(
+                              builder: (context) => SignUp(),
+                            ),
+                          );
+                        },
+                        child: Text(
+                          " Sign Up Now!",
+                          style: TextStyle(
+                            color: Color(0xFF7f30fe),
+                            fontSize: 16.0,
+                            fontWeight: FontWeight.w500,
+                          ),
                         ),
                       ),
                     ],
