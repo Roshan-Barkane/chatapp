@@ -84,27 +84,30 @@ class _ChatsPageState extends State<ChatsPage> {
     );
   }
 
+// this function are used chat massage show
   Widget chatMassage() {
     return StreamBuilder(
-        stream: messageStream,
-        builder: (context, AsyncSnapshot snapshot) {
-          return snapshot.hasData
-              ? ListView.builder(
-                  padding: EdgeInsets.only(bottom: 90.0, top: 130),
-                  itemBuilder: (context, index) {
-                    DocumentSnapshot ds = snapshot.data.docs[index];
-                    return chatMassageTile(
-                      ds["massage"],
-                      myUserName == ds["sendBy"],
-                    );
-                  },
-                  itemCount: snapshot.data.docs.length,
-                  reverse: true,
-                )
-              : Center(child: CircularProgressIndicator());
-        });
+      stream: messageStream,
+      builder: (context, AsyncSnapshot snapshot) {
+        return snapshot.hasData
+            ? ListView.builder(
+                padding: EdgeInsets.only(bottom: 90.0, top: 130),
+                itemBuilder: (context, index) {
+                  DocumentSnapshot ds = snapshot.data.docs[index];
+                  return chatMassageTile(
+                    ds["massage"],
+                    myUserName == ds["sendBy"],
+                  );
+                },
+                itemCount: snapshot.data.docs.length,
+                reverse: true,
+              )
+            : Center(child: CircularProgressIndicator());
+      },
+    );
   }
 
+// this function are used to addMessage in main screen
   addMessage(bool sendClicked) {
     if (messageController.text != "") {
       String massage = messageController.text;
@@ -141,6 +144,7 @@ class _ChatsPageState extends State<ChatsPage> {
 
   getAndSetMassages() async {
     messageStream = await DataBaseMethod().getChatRoomMassages(chatRoomId);
+
     setState(() {});
   }
 

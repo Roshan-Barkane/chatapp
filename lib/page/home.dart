@@ -45,12 +45,14 @@ class _HomePageState extends State<HomePage> {
                 itemCount: snapshot.data.docs.length,
                 shrinkWrap: true,
                 itemBuilder: (context, index) {
+                  int sendIndex = index;
                   DocumentSnapshot ds = snapshot.data.docs[index];
                   return chatRoomListTile(
                     lastMessage: ds["lastMessage"],
                     chatRoomId: ds.id,
                     myuserName: myUserName.toString(),
                     time: ds["lastMessageSendTs"],
+                    index: index,
                   );
                 },
               )
@@ -92,7 +94,7 @@ class _HomePageState extends State<HomePage> {
     });
     var capitalizedValue =
         value.substring(0, 1).toUpperCase() + value.substring(1);
-    print("value of ${capitalizedValue}");
+
     if (queryResultSet.length == 0 && value.toString().length == 1) {
       DataBaseMethod().Search(value).then(
         (QuerySnapshot docs) {
@@ -116,7 +118,7 @@ class _HomePageState extends State<HomePage> {
   @override
   Widget build(BuildContext context) {
     return Scaffold(
-      backgroundColor: Color(0xFF553370),
+      backgroundColor: Color(0xFF7f30fe),
       body: SingleChildScrollView(
         child: Container(
           // margin: EdgeInsets.symmetric(vertical: 50.0, horizontal: 20.0),
@@ -139,7 +141,7 @@ class _HomePageState extends State<HomePage> {
                                 hintText: "Search User",
                                 hintStyle: TextStyle(
                                     color: Colors.white,
-                                    fontSize: 20.0,
+                                    fontSize: 22.0,
                                     fontWeight: FontWeight.w500),
                               ),
                               style: TextStyle(
@@ -152,7 +154,7 @@ class _HomePageState extends State<HomePage> {
                         : Text(
                             "ChatUp",
                             style: TextStyle(
-                                color: Color(0xFFc199cd),
+                                color: Colors.white,
                                 fontSize: 25.0,
                                 fontWeight: FontWeight.bold),
                           ),
@@ -165,7 +167,7 @@ class _HomePageState extends State<HomePage> {
                         padding: EdgeInsets.all(8),
                         height: 40,
                         decoration: BoxDecoration(
-                            color: Color.fromARGB(255, 35, 26, 41),
+                            color: Colors.white,
                             borderRadius: BorderRadius.circular(50)),
                         child: Center(
                           child: search
@@ -176,12 +178,14 @@ class _HomePageState extends State<HomePage> {
                                   },
                                   child: Icon(
                                     Icons.close,
-                                    color: Color(0xFFc199cd),
+                                    color: Colors.blue,
+                                    size: 30,
                                   ),
                                 )
                               : Icon(
                                   Icons.search,
-                                  color: Color(0xFFc199cd),
+                                  color: Colors.blue,
+                                  size: 30,
                                 ),
                         ),
                       ),
@@ -308,19 +312,51 @@ class _HomePageState extends State<HomePage> {
 
 class chatRoomListTile extends StatefulWidget {
   final String lastMessage, chatRoomId, myuserName, time;
+  int index;
+
   chatRoomListTile(
       {required this.lastMessage,
       required this.chatRoomId,
       required this.myuserName,
-      required this.time});
+      required this.time,
+      required this.index});
 
   @override
   State<chatRoomListTile> createState() => _chatRoomListTileState();
 }
 
 class _chatRoomListTileState extends State<chatRoomListTile> {
-  String profirePicUrl = "", name = "", userName = "", id = "";
+  // this function is call the getthe sharedpre method
 
+  @override
+  void initState() {
+    // TODO: implement initState
+    gethisUserInfo();
+    applyRandomColor();
+    super.initState();
+  }
+
+  String profirePicUrl = "", name = "", userName = "", id = "", chatRoomId = "";
+  // this code is used to pic randowm color in colrors list and add background color in circleAvatar
+  var colors = [
+    Colors.blue.shade200,
+    Colors.yellow.shade200,
+    Colors.orange.shade200,
+    Colors.purple.shade200,
+    Colors.brown.shade200,
+    Colors.teal.shade200,
+    Colors.red.shade200,
+    Colors.purple.shade200,
+  ];
+  var defaultColor = Colors.green.shade600;
+  applyRandomColor() {
+    var rrnd = Random().nextInt(colors.length);
+    setState(() {
+      defaultColor = colors[rrnd];
+    });
+  }
+
+// this function are used to get the user information
   gethisUserInfo() async {
     userName = widget.chatRoomId
         .replaceAll("-", "")
@@ -334,34 +370,34 @@ class _chatRoomListTileState extends State<chatRoomListTile> {
   }
 
   @override
-  void initState() {
-    // TODO: implement initState
-    gethisUserInfo();
-    super.initState();
-  }
-
-  @override
   Widget build(BuildContext context) {
     return Container(
       margin: EdgeInsets.symmetric(horizontal: 20.0, vertical: 20.0),
       child: GestureDetector(
-        onTap: () {},
+        onTap: () {
+          Navigator.push(
+            context,
+            MaterialPageRoute(
+              builder: (context) => ChatsPage(
+                name: userName,
+                profileur: profirePicUrl,
+                username: userName.toUpperCase(),
+              ),
+            ),
+          );
+        },
         child: Row(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
-            profirePicUrl == ""
-                ? CircleAvatar(
-                    radius: 30,
-                  )
-                : ClipRRect(
-                    borderRadius: BorderRadius.circular(50),
-                    child: Image.network(
-                      profirePicUrl,
-                      height: 70,
-                      width: 70,
-                      fit: BoxFit.cover,
-                    ),
-                  ),
+            CircleAvatar(
+              radius: 31,
+              backgroundColor: defaultColor,
+              child: Icon(
+                Icons.person_2,
+                size: 40,
+                color: Colors.white,
+              ),
+            ),
             SizedBox(
               width: 20,
             ),
@@ -372,11 +408,11 @@ class _chatRoomListTileState extends State<chatRoomListTile> {
                   height: 15,
                 ),
                 Text(
-                  userName,
+                  userName.toUpperCase(),
                   style: TextStyle(
-                    fontSize: 17.0,
-                    color: Colors.black,
-                    fontWeight: FontWeight.w500,
+                    fontSize: 18.0,
+                    color: Colors.blue.shade700,
+                    fontWeight: FontWeight.w800,
                   ),
                 ),
                 SizedBox(
@@ -389,8 +425,8 @@ class _chatRoomListTileState extends State<chatRoomListTile> {
                     style: TextStyle(
                       overflow: TextOverflow.ellipsis,
                       fontSize: 16.0,
-                      color: Colors.black45,
-                      fontWeight: FontWeight.w500,
+                      color: Colors.black54,
+                      fontWeight: FontWeight.w600,
                     ),
                   ),
                 ),
@@ -401,8 +437,8 @@ class _chatRoomListTileState extends State<chatRoomListTile> {
               widget.time,
               style: TextStyle(
                   fontSize: 14.0,
-                  color: Colors.black45,
-                  fontWeight: FontWeight.w500),
+                  color: Colors.black,
+                  fontWeight: FontWeight.bold),
             )
           ],
         ),
